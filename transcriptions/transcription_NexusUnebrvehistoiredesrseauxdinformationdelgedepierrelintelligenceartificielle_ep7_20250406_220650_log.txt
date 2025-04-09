@@ -1,0 +1,14 @@
+Transcription de ./NexusUnebrvehistoiredesrseauxdinformationdelgedepierrelintelligenceartificielle_ep7.mp3
+Date: 2025-04-06 22:06:50
+Langue: fr
+Configuration: {
+  "chunk_duration": 10,
+  "output_folder": "transcriptions",
+  "temp_folder": "temp_audio",
+  "whisper_model": "tiny",
+  "parallel_jobs": 1,
+  "api_service": "local"
+}
+
+
+ERREUR: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1006)>

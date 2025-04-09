@@ -1,0 +1,332 @@
+Transcription de ./NexusUnebrvehistoiredesrseauxdinformationdelgedepierrelintelligenceartificielle_ep7.mp3
+Date: 2025-04-06 22:15:35
+Langue: fr
+Configuration: {
+  "chunk_duration": 10,
+  "output_folder": "transcriptions",
+  "temp_folder": "temp_audio",
+  "whisper_model": "tiny",
+  "parallel_jobs": 1,
+  "api_service": "local"
+}
+
+Segment 1/106 traité: segment_0000_00-00-00.wav
+Heure: 22:18:10
+
+Segment 2/106 traité: segment_0001_00-10-00.wav
+Heure: 22:18:29
+
+Segment 3/106 traité: segment_0002_00-20-00.wav
+Heure: 22:18:50
+
+Segment 4/106 traité: segment_0003_00-30-00.wav
+Heure: 22:19:10
+
+Segment 5/106 traité: segment_0004_00-40-00.wav
+Heure: 22:19:30
+
+Segment 6/106 traité: segment_0005_00-50-00.wav
+Heure: 22:19:50
+
+Segment 7/106 traité: segment_0006_01-00-00.wav
+Heure: 22:20:11
+
+Segment 8/106 traité: segment_0007_01-10-00.wav
+Heure: 22:20:32
+
+Segment 9/106 traité: segment_0008_01-20-00.wav
+Heure: 22:20:53
+
+Segment 10/106 traité: segment_0009_01-30-00.wav
+Heure: 22:21:16
+
+Segment 11/106 traité: segment_0010_01-40-00.wav
+Heure: 22:21:39
+
+Segment 12/106 traité: segment_0011_01-50-00.wav
+Heure: 22:22:02
+
+Segment 13/106 traité: segment_0012_02-00-00.wav
+Heure: 22:22:24
+
+Segment 14/106 traité: segment_0013_02-10-00.wav
+Heure: 22:22:46
+
+Segment 15/106 traité: segment_0014_02-20-00.wav
+Heure: 22:23:07
+
+Segment 16/106 traité: segment_0015_02-30-00.wav
+Heure: 22:23:28
+
+Segment 17/106 traité: segment_0016_02-40-00.wav
+Heure: 22:23:49
+
+Segment 18/106 traité: segment_0017_02-50-00.wav
+Heure: 22:24:10
+
+Segment 19/106 traité: segment_0018_03-00-00.wav
+Heure: 22:24:31
+
+Segment 20/106 traité: segment_0019_03-10-00.wav
+Heure: 22:24:55
+
+Segment 21/106 traité: segment_0020_03-20-00.wav
+Heure: 22:25:18
+
+Segment 22/106 traité: segment_0021_03-30-00.wav
+Heure: 22:25:39
+
+Segment 23/106 traité: segment_0022_03-40-00.wav
+Heure: 22:26:00
+
+Segment 24/106 traité: segment_0023_03-50-00.wav
+Heure: 22:26:23
+
+Segment 25/106 traité: segment_0024_04-00-00.wav
+Heure: 22:26:45
+
+Segment 26/106 traité: segment_0025_04-10-00.wav
+Heure: 22:27:07
+
+Segment 27/106 traité: segment_0026_04-20-00.wav
+Heure: 22:27:30
+
+Segment 28/106 traité: segment_0027_04-30-00.wav
+Heure: 22:27:53
+
+Segment 29/106 traité: segment_0028_04-40-00.wav
+Heure: 22:28:15
+
+Segment 30/106 traité: segment_0029_04-50-00.wav
+Heure: 22:28:42
+
+Segment 31/106 traité: segment_0030_05-00-00.wav
+Heure: 22:29:05
+
+Segment 32/106 traité: segment_0031_05-10-00.wav
+Heure: 22:29:28
+
+Segment 33/106 traité: segment_0032_05-20-00.wav
+Heure: 22:29:52
+
+Segment 34/106 traité: segment_0033_05-30-00.wav
+Heure: 22:30:13
+
+Segment 35/106 traité: segment_0034_05-40-00.wav
+Heure: 22:30:37
+
+Segment 36/106 traité: segment_0035_05-50-00.wav
+Heure: 22:30:58
+
+Segment 37/106 traité: segment_0036_06-00-00.wav
+Heure: 22:31:21
+
+Segment 38/106 traité: segment_0037_06-10-00.wav
+Heure: 22:31:44
+
+Segment 39/106 traité: segment_0038_06-20-00.wav
+Heure: 22:32:06
+
+Segment 40/106 traité: segment_0039_06-30-00.wav
+Heure: 22:32:31
+
+Segment 41/106 traité: segment_0040_06-40-00.wav
+Heure: 22:32:57
+
+Segment 42/106 traité: segment_0041_06-50-00.wav
+Heure: 22:33:24
+
+Segment 43/106 traité: segment_0042_07-00-00.wav
+Heure: 22:33:49
+
+Segment 44/106 traité: segment_0043_07-10-00.wav
+Heure: 22:34:14
+
+Segment 45/106 traité: segment_0044_07-20-00.wav
+Heure: 22:34:40
+
+Segment 46/106 traité: segment_0045_07-30-00.wav
+Heure: 22:35:03
+
+Segment 47/106 traité: segment_0046_07-40-00.wav
+Heure: 22:35:26
+
+Segment 48/106 traité: segment_0047_07-50-00.wav
+Heure: 22:35:49
+
+Segment 49/106 traité: segment_0048_08-00-00.wav
+Heure: 22:36:13
+
+Segment 50/106 traité: segment_0049_08-10-00.wav
+Heure: 22:36:36
+
+Segment 51/106 traité: segment_0050_08-20-00.wav
+Heure: 22:37:00
+
+Segment 52/106 traité: segment_0051_08-30-00.wav
+Heure: 22:37:22
+
+Segment 53/106 traité: segment_0052_08-40-00.wav
+Heure: 22:37:42
+
+Segment 54/106 traité: segment_0053_08-50-00.wav
+Heure: 22:38:03
+
+Segment 55/106 traité: segment_0054_09-00-00.wav
+Heure: 22:38:24
+
+Segment 56/106 traité: segment_0055_09-10-00.wav
+Heure: 22:38:45
+
+Segment 57/106 traité: segment_0056_09-20-00.wav
+Heure: 22:39:07
+
+Segment 58/106 traité: segment_0057_09-30-00.wav
+Heure: 22:39:29
+
+Segment 59/106 traité: segment_0058_09-40-00.wav
+Heure: 22:39:56
+
+Segment 60/106 traité: segment_0059_09-50-00.wav
+Heure: 22:40:30
+
+Segment 61/106 traité: segment_0060_10-00-00.wav
+Heure: 22:41:01
+
+Segment 62/106 traité: segment_0061_10-10-00.wav
+Heure: 22:41:28
+
+Segment 63/106 traité: segment_0062_10-20-00.wav
+Heure: 22:41:57
+
+Segment 64/106 traité: segment_0063_10-30-00.wav
+Heure: 22:42:29
+
+Segment 65/106 traité: segment_0064_10-40-00.wav
+Heure: 22:43:19
+
+Segment 66/106 traité: segment_0065_10-50-00.wav
+Heure: 22:43:53
+
+Segment 67/106 traité: segment_0066_11-00-00.wav
+Heure: 22:44:21
+
+Segment 68/106 traité: segment_0067_11-10-00.wav
+Heure: 22:44:49
+
+Segment 69/106 traité: segment_0068_11-20-00.wav
+Heure: 22:45:17
+
+Segment 70/106 traité: segment_0069_11-30-00.wav
+Heure: 22:45:47
+
+Segment 71/106 traité: segment_0070_11-40-00.wav
+Heure: 22:46:16
+
+Segment 72/106 traité: segment_0071_11-50-00.wav
+Heure: 22:46:47
+
+Segment 73/106 traité: segment_0072_12-00-00.wav
+Heure: 22:47:20
+
+Segment 74/106 traité: segment_0073_12-10-00.wav
+Heure: 22:47:51
+
+Segment 75/106 traité: segment_0074_12-20-00.wav
+Heure: 22:48:23
+
+Segment 76/106 traité: segment_0075_12-30-00.wav
+Heure: 22:48:50
+
+Segment 77/106 traité: segment_0076_12-40-00.wav
+Heure: 22:49:14
+
+Segment 78/106 traité: segment_0077_12-50-00.wav
+Heure: 22:49:44
+
+Segment 79/106 traité: segment_0078_13-00-00.wav
+Heure: 22:50:12
+
+Segment 80/106 traité: segment_0079_13-10-00.wav
+Heure: 22:50:37
+
+Segment 81/106 traité: segment_0080_13-20-00.wav
+Heure: 22:51:01
+
+Segment 82/106 traité: segment_0081_13-30-00.wav
+Heure: 22:51:25
+
+Segment 83/106 traité: segment_0082_13-40-00.wav
+Heure: 22:51:49
+
+Segment 84/106 traité: segment_0083_13-50-00.wav
+Heure: 22:52:14
+
+Segment 85/106 traité: segment_0084_14-00-00.wav
+Heure: 22:52:39
+
+Segment 86/106 traité: segment_0085_14-10-00.wav
+Heure: 22:53:03
+
+Segment 87/106 traité: segment_0086_14-20-00.wav
+Heure: 22:53:28
+
+Segment 88/106 traité: segment_0087_14-30-00.wav
+Heure: 22:53:52
+
+Segment 89/106 traité: segment_0088_14-40-00.wav
+Heure: 22:54:16
+
+Segment 90/106 traité: segment_0089_14-50-00.wav
+Heure: 22:54:41
+
+Segment 91/106 traité: segment_0090_15-00-00.wav
+Heure: 22:55:06
+
+Segment 92/106 traité: segment_0091_15-10-00.wav
+Heure: 22:55:30
+
+Segment 93/106 traité: segment_0092_15-20-00.wav
+Heure: 22:55:54
+
+Segment 94/106 traité: segment_0093_15-30-00.wav
+Heure: 22:56:20
+
+Segment 95/106 traité: segment_0094_15-40-00.wav
+Heure: 22:56:44
+
+Segment 96/106 traité: segment_0095_15-50-00.wav
+Heure: 22:57:08
+
+Segment 97/106 traité: segment_0096_16-00-00.wav
+Heure: 22:57:33
+
+Segment 98/106 traité: segment_0097_16-10-00.wav
+Heure: 22:57:57
+
+Segment 99/106 traité: segment_0098_16-20-00.wav
+Heure: 22:58:22
+
+Segment 100/106 traité: segment_0099_16-30-00.wav
+Heure: 22:58:46
+
+Segment 101/106 traité: segment_0100_16-40-00.wav
+Heure: 22:59:11
+
+Segment 102/106 traité: segment_0101_16-50-00.wav
+Heure: 22:59:35
+
+Segment 103/106 traité: segment_0102_17-00-00.wav
+Heure: 23:00:00
+
+Segment 104/106 traité: segment_0103_17-10-00.wav
+Heure: 23:00:25
+
+Segment 105/106 traité: segment_0104_17-20-00.wav
+Heure: 23:00:48
+
+Segment 106/106 traité: segment_0105_17-30-00.wav
+Heure: 23:01:00
+
+
+Transcription terminée en 00:45:25
