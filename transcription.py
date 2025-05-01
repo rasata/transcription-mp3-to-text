@@ -208,7 +208,15 @@ def transcribe_segment_local(audio_file, language="fr"):
         fp16=False  # Désactiver fp16 pour éviter les problèmes sur certains macOS
     )
     
-    return result["text"]
+    # S'assurer que le texte est correctement encodé
+    text = result["text"]
+    if isinstance(text, bytes):
+        try:
+            text = text.decode('utf-8')
+        except UnicodeDecodeError:
+            text = text.decode('latin-1')
+    
+    return text
 
 def transcribe_segment_assemblyai(audio_file, language="fr"):
     """
@@ -329,6 +337,38 @@ def transcribe_segment(audio_file, language="fr"):
     else:
         raise ValueError(f"Service de transcription non reconnu: {CONFIG['api_service']}")
 
+def detect_file_encoding(file_path):
+    """
+    Détecte l'encodage d'un fichier existant
+    
+    Args:
+        file_path: Chemin vers le fichier
+    
+    Returns:
+        Encodage détecté ou 'utf-8' par défaut
+    """
+    if not os.path.exists(file_path):
+        return 'utf-8'
+    
+    try:
+        import chardet
+        with open(file_path, 'rb') as f:
+            result = chardet.detect(f.read())
+        return result['encoding'] or 'utf-8'
+    except (ImportError, Exception):
+        # Si chardet n'est pas disponible ou échoue, essayer manuellement
+        encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+        for enc in encodings:
+            try:
+                with open(file_path, 'r', encoding=enc) as f:
+                    f.read()
+                return enc
+            except UnicodeDecodeError:
+                continue
+        
+        # Par défaut, utiliser utf-8
+        return 'utf-8'
+
 def process_file(audio_file, language="fr", output_file=None):
     """
     Processus principal pour traiter un fichier audio et le transcrire
@@ -361,11 +401,18 @@ def process_file(audio_file, language="fr", output_file=None):
     log_file = output_file.replace(".txt", "_log.txt")
     
     # Journaliser la configuration
-    with open(log_file, "w", encoding="utf-8") as f:
-        f.write(f"Transcription de {audio_file}\n")
-        f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write(f"Langue: {language}\n")
-        f.write(f"Configuration: {json.dumps(CONFIG, indent=2)}\n\n")
+    try:
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.write(f"Transcription de {audio_file}\n")
+            f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Langue: {language}\n")
+            f.write(f"Configuration: {json.dumps(CONFIG, indent=2)}\n\n")
+    except UnicodeEncodeError:
+        with open(log_file, "w", encoding="latin-1") as f:
+            f.write(f"Transcription de {audio_file}\n")
+            f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Langue: {language}\n")
+            f.write(f"Configuration: {json.dumps(CONFIG, indent=2)}\n\n")
     
     print(f"🚀 Démarrage de la transcription pour: {audio_file}")
     print(f"📋 La transcription sera enregistrée dans: {output_file}")
@@ -395,16 +442,29 @@ def process_file(audio_file, language="fr", output_file=None):
             
             # Enregistrer le texte transcrit dans le fichier de sortie
             # (sauvegarde incrémentielle pour éviter la perte de données)
-            with open(output_file, "a", encoding="utf-8") as f:
-                if i == 0:
-                    f.write(segment_text)
-                else:
-                    f.write("\n\n--- Nouveau segment ---\n\n" + segment_text)
+            try:
+                with open(output_file, "a", encoding="utf-8") as f:
+                    if i == 0:
+                        f.write(segment_text)
+                    else:
+                        f.write("\n\n--- Nouveau segment ---\n\n" + segment_text)
+            except UnicodeEncodeError:
+                # Essayer avec un autre encodage si utf-8 échoue
+                with open(output_file, "a", encoding="latin-1") as f:
+                    if i == 0:
+                        f.write(segment_text)
+                    else:
+                        f.write("\n\n--- Nouveau segment ---\n\n" + segment_text)
             
             # Mettre à jour le fichier journal
-            with open(log_file, "a", encoding="utf-8") as f:
-                f.write(f"Segment {i+1}/{len(segments)} traité: {segment_name}\n")
-                f.write(f"Heure: {datetime.now().strftime('%H:%M:%S')}\n\n")
+            try:
+                with open(log_file, "a", encoding="utf-8") as f:
+                    f.write(f"Segment {i+1}/{len(segments)} traité: {segment_name}\n")
+                    f.write(f"Heure: {datetime.now().strftime('%H:%M:%S')}\n\n")
+            except UnicodeEncodeError:
+                with open(log_file, "a", encoding="latin-1") as f:
+                    f.write(f"Segment {i+1}/{len(segments)} traité: {segment_name}\n")
+                    f.write(f"Heure: {datetime.now().strftime('%H:%M:%S')}\n\n")
             
             # Calculer et afficher la progression globale
             progress = ((i + 1) / len(segments)) * 100
@@ -428,8 +488,12 @@ def process_file(audio_file, language="fr", output_file=None):
         
         # Finaliser le journal
         elapsed_time = time.time() - start_time
-        with open(log_file, "a", encoding="utf-8") as f:
-            f.write(f"\nTranscription terminée en {format_time(elapsed_time)}\n")
+        try:
+            with open(log_file, "a", encoding="utf-8") as f:
+                f.write(f"\nTranscription terminée en {format_time(elapsed_time)}\n")
+        except UnicodeEncodeError:
+            with open(log_file, "a", encoding="latin-1") as f:
+                f.write(f"\nTranscription terminée en {format_time(elapsed_time)}\n")
         
         print(f"\n✅ Transcription terminée en {format_time(elapsed_time)}")
         print(f"📋 Résultat enregistré dans: {output_file}")
@@ -438,8 +502,12 @@ def process_file(audio_file, language="fr", output_file=None):
         
     except Exception as e:
         # En cas d'erreur, enregistrer l'erreur dans le journal
-        with open(log_file, "a", encoding="utf-8") as f:
-            f.write(f"\nERREUR: {str(e)}\n")
+        try:
+            with open(log_file, "a", encoding="utf-8") as f:
+                f.write(f"\nERREUR: {str(e)}\n")
+        except UnicodeEncodeError:
+            with open(log_file, "a", encoding="latin-1") as f:
+                f.write(f"\nERREUR: {str(e)}\n")
         
         print(f"\n❌ Erreur lors de la transcription: {str(e)}")
         raise
