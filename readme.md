@@ -11,6 +11,12 @@ Cet outil permet de transcrire des fichiers audio de très longue durée (plusie
 - ✅ Compatible avec macOS Apple Silicon
 - ✅ Correction automatique des problèmes de certificats SSL
 
+## Approche du modèle Whisper
+
+![Approche Whisper](https://raw.githubusercontent.com/openai/whisper/main/approach.png)
+
+*Source: [OpenAI Whisper](https://github.com/openai/whisper)*
+
 ## Installation
 
 ### Prérequis
@@ -182,3 +188,56 @@ Ce script est fourni tel quel, sans garantie d'aucune sorte.
 ---
 
 *Documentation créée le 7 avril 2025*
+# Outil de Transcription Audio
+
+Cet outil permet de transcrire des fichiers audio de longue durée (optimisé pour 13+ heures) en texte.
+
+## Fonctionnalités
+
+- Division automatique des fichiers audio en segments gérables
+- Transcription avec le modèle Whisper d'OpenAI (https://github.com/openai/whisper)
+- Support pour plusieurs services de transcription:
+  - Local (modèle Whisper open source)
+  - API OpenAI
+  - API AssemblyAI
+- Compatible avec macOS Apple Silicon et autres plateformes
+- Correction automatique des problèmes de certificats SSL sur macOS
+
+## Approche de Whisper
+
+![Approche Whisper](https://raw.githubusercontent.com/openai/whisper/main/approach.png)
+
+## Installation
+
+```bash
+# Installer les dépendances
+pip install -U openai-whisper torch
+
+# Sur macOS
+brew install ffmpeg
+
+# Sur Ubuntu/Debian
+apt install ffmpeg
+```
+
+## Utilisation
+
+```bash
+python transcription.py chemin/vers/fichier_audio.mp3
+```
+
+Options disponibles:
+- `-l, --language`: Code de langue (par défaut: fr)
+- `-o, --output`: Fichier de sortie pour la transcription
+- `-c, --chunk`: Durée des segments en minutes
+- `-m, --model`: Modèle Whisper à utiliser (tiny, base, small, medium, large)
+- `-s, --service`: Service de transcription à utiliser (local, assemblyai, openai)
+- `--no-ssl-fix`: Désactiver la correction automatique des certificats SSL
+
+## Exemple
+
+```bash
+python transcription.py podcast.mp3 -m medium -c 15
+```
+
+Cette commande transcrit le fichier podcast.mp3 en utilisant le modèle medium de Whisper et des segments de 15 minutes.

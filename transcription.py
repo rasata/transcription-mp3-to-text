@@ -2,6 +2,13 @@
 """
 Outil de transcription pour fichiers audio très longs (optimisé pour 13+ heures)
 Compatible avec macOS Apple Silicon et autres plateformes
+
+Utilise le modèle Whisper d'OpenAI (https://github.com/openai/whisper) en mode local
+ou via les API d'OpenAI ou AssemblyAI pour la transcription.
+
+Approche de Whisper:
+![Approche Whisper](https://raw.githubusercontent.com/openai/whisper/main/approach.png)
+
 Auteur: Claude
 Date: 2025-04-06
 """
@@ -23,7 +30,7 @@ CONFIG = {
     "temp_folder": "temp_audio",  # Dossier temporaire
     "whisper_model": "tiny",  # Options: tiny, base, small, medium, large
     "parallel_jobs": 1,       # Nombre de transcriptions en parallèle (1 pour fiabilité)
-    "api_service": "local"    # Options: local, assemblyai, openai
+    "api_service": "local"    # Options: local (modèle Whisper open source), assemblyai, openai
 }
 
 # Constantes
@@ -67,6 +74,7 @@ def check_dependencies():
             elif dep == "OpenAI Whisper":
                 print("  - OpenAI Whisper: installez avec 'pip install -U openai-whisper'")
                 print("    Note: Assurez-vous d'avoir Pytorch installé")
+                print("    Repo GitHub: https://github.com/openai/whisper")
                 
         print("\nInstallation recommandée sur macOS:")
         print("  brew install ffmpeg")
@@ -194,7 +202,8 @@ def split_audio(audio_file, chunk_duration_min=10, temp_folder="temp_audio"):
 
 def transcribe_segment_local(audio_file, language="fr"):
     """
-    Transcrit un segment audio en utilisant Whisper localement
+    Transcrit un segment audio en utilisant le modèle Whisper open source d'OpenAI localement
+    https://github.com/openai/whisper
     
     Args:
         audio_file: Chemin vers le fichier audio à transcrire
@@ -205,7 +214,7 @@ def transcribe_segment_local(audio_file, language="fr"):
     """
     import whisper
     
-    print(f"🔄 Chargement du modèle Whisper ({CONFIG['whisper_model']})...")
+    print(f"🔄 Chargement du modèle Whisper open source ({CONFIG['whisper_model']})...")
     model = whisper.load_model(CONFIG['whisper_model'])
     
     print(f"🔄 Transcription en cours: {os.path.basename(audio_file)}")
@@ -603,7 +612,7 @@ def fix_ssl_certificates_macos():
 
 def main():
     """Fonction principale du script"""
-    parser = argparse.ArgumentParser(description="Transcription de fichiers audio de longue durée")
+    parser = argparse.ArgumentParser(description="Transcription de fichiers audio de longue durée avec Whisper")
     parser.add_argument("audio_file", help="Chemin vers le fichier audio à transcrire")
     parser.add_argument("-l", "--language", default="fr", help="Code de langue (par défaut: fr)")
     parser.add_argument("-o", "--output", help="Fichier de sortie pour la transcription")
