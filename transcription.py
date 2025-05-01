@@ -30,7 +30,11 @@ CONFIG = {
     "temp_folder": "temp_audio",  # Dossier temporaire
     "whisper_model": "tiny",  # Options: tiny, base, small, medium, large
     "parallel_jobs": 1,       # Nombre de transcriptions en parallèle (1 pour fiabilité)
-    "api_service": "local"    # Options: local (modèle Whisper open source), assemblyai, openai
+    "api_service": "local",   # Options: local (modèle Whisper open source), assemblyai, openai
+    "speaker_diarization": False,  # Identification des différents locuteurs
+    "min_speakers": 1,        # Nombre minimum de locuteurs à identifier
+    "max_speakers": 2,        # Nombre maximum de locuteurs à identifier
+    "hg_models_dir": "hg-models"  # Dossier pour stocker les modèles HuggingFace localement
 }
 
 # Constantes
@@ -47,6 +51,121 @@ API_KEYS = {
     "assemblyai": "VOTRE_CLE_API_ASSEMBLY_AI",
     "openai": "VOTRE_CLE_API_OPENAI"
 }
+
+def identify_speakers(audio_file, text, segments):
+    """
+    Identifie les différents locuteurs dans un fichier audio
+    
+    Args:
+        audio_file: Chemin vers le fichier audio
+        text: Texte transcrit
+        segments: Segments de la transcription avec timestamps
+    
+    Returns:
+        Texte formaté avec identification des locuteurs
+    """
+    try:
+        from pyannote.audio import Pipeline
+        import torch
+    except ImportError:
+        raise ImportError("La bibliothèque pyannote.audio est requise pour l'identification des locuteurs. "
+                         "Installez-la avec: pip install pyannote.audio")
+    
+    # Créer le dossier pour les modèles HuggingFace s'il n'existe pas
+    os.makedirs(CONFIG["hg_models_dir"], exist_ok=True)
+    
+    # Chemin local pour le modèle
+    model_id = "pyannote/speaker-diarization-3.0"
+    local_model_path = os.path.join(CONFIG["hg_models_dir"], "speaker-diarization-3.0")
+    
+    # Vérifier si le modèle existe localement
+    if os.path.exists(local_model_path) and os.path.isdir(local_model_path):
+        print(f"🔄 Chargement du modèle local d'identification des locuteurs depuis {local_model_path}...")
+        try:
+            pipeline = Pipeline.from_pretrained(local_model_path)
+            print("✅ Modèle local chargé avec succès.")
+        except Exception as e:
+            print(f"⚠️ Erreur lors du chargement du modèle local: {e}")
+            print("⚠️ Tentative de téléchargement depuis HuggingFace...")
+            # Si le chargement local échoue, on essaie de télécharger
+            os.path.exists(local_model_path) or None  # Pour éviter l'erreur de syntaxe
+    else:
+        print("⚠️ Modèle local non trouvé. Tentative de téléchargement depuis HuggingFace...")
+        
+        # Vérifier si un token HuggingFace est disponible dans les variables d'environnement
+        hf_token = os.environ.get("HF_TOKEN")
+        if not hf_token:
+            print("⚠️ Aucun token HuggingFace trouvé. L'identification des locuteurs nécessite un token.")
+            print("⚠️ Créez un compte sur https://huggingface.co/ et définissez la variable d'environnement HF_TOKEN")
+            return text
+        
+        # Télécharger et sauvegarder le modèle localement
+        print(f"🔄 Téléchargement du modèle d'identification des locuteurs vers {local_model_path}...")
+        try:
+            pipeline = Pipeline.from_pretrained(
+                model_id,
+                use_auth_token=hf_token,
+                cache_dir=CONFIG["hg_models_dir"]
+            )
+            
+            # Sauvegarder le modèle localement pour une utilisation future
+            print("🔄 Sauvegarde du modèle localement pour une utilisation future...")
+            pipeline.to_disk(local_model_path)
+            print(f"✅ Modèle sauvegardé dans {local_model_path}")
+        except Exception as e:
+            print(f"❌ Erreur lors du téléchargement du modèle: {e}")
+            return text
+    
+    # Appliquer la diarization
+    print("🔄 Analyse des locuteurs...")
+    diarization = pipeline(audio_file, 
+                          min_speakers=CONFIG["min_speakers"], 
+                          max_speakers=CONFIG["max_speakers"])
+    
+    # Extraire les tours de parole
+    turns = []
+    for turn, _, speaker in diarization.itertracks(yield_label=True):
+        turns.append({
+            "start": turn.start,
+            "end": turn.end,
+            "speaker": speaker
+        })
+    
+    # Associer les segments de transcription aux tours de parole
+    result_text = ""
+    current_speaker = None
+    
+    for segment in segments:
+        segment_start = segment.get("start", 0)
+        segment_end = segment.get("end", 0)
+        segment_text = segment.get("text", "").strip()
+        
+        # Trouver le locuteur principal pour ce segment
+        speaker_candidates = []
+        for turn in turns:
+            # Calculer le chevauchement
+            overlap_start = max(segment_start, turn["start"])
+            overlap_end = min(segment_end, turn["end"])
+            
+            if overlap_end > overlap_start:
+                overlap_duration = overlap_end - overlap_start
+                speaker_candidates.append((turn["speaker"], overlap_duration))
+        
+        # Sélectionner le locuteur avec le plus grand chevauchement
+        if speaker_candidates:
+            speaker_candidates.sort(key=lambda x: x[1], reverse=True)
+            speaker = speaker_candidates[0][0]
+        else:
+            speaker = current_speaker or "Inconnu"
+        
+        # Ajouter le texte avec le locuteur
+        if speaker != current_speaker:
+            result_text += f"\n\n[{speaker}]: {segment_text}"
+            current_speaker = speaker
+        else:
+            result_text += f" {segment_text}"
+    
+    return result_text
 
 def check_dependencies():
     """Vérifie que toutes les dépendances nécessaires sont installées"""
@@ -65,6 +184,18 @@ def check_dependencies():
         except ImportError:
             missing.append("OpenAI Whisper")
     
+    # Vérifier pyannote.audio si diarization activée
+    if CONFIG["speaker_diarization"]:
+        try:
+            from pyannote.audio import Pipeline
+            import torch
+        except ImportError:
+            missing.append("pyannote.audio")
+        
+        # Vérifier si le dossier des modèles existe
+        if not os.path.exists(CONFIG["hg_models_dir"]):
+            print(f"ℹ️ Le dossier {CONFIG['hg_models_dir']} pour les modèles HuggingFace sera créé.")
+    
     if missing:
         print("⚠️ Dépendances manquantes:")
         for dep in missing:
@@ -75,10 +206,16 @@ def check_dependencies():
                 print("  - OpenAI Whisper: installez avec 'pip install -U openai-whisper'")
                 print("    Note: Assurez-vous d'avoir Pytorch installé")
                 print("    Repo GitHub: https://github.com/openai/whisper")
+            elif dep == "pyannote.audio":
+                print("  - pyannote.audio: installez avec 'pip install pyannote.audio'")
+                print("    Note: Nécessite un token HuggingFace (https://huggingface.co/)")
+                print("    Définissez la variable d'environnement HF_TOKEN avec votre token")
                 
         print("\nInstallation recommandée sur macOS:")
         print("  brew install ffmpeg")
         print("  pip install -U openai-whisper torch")
+        if "pyannote.audio" in missing:
+            print("  pip install pyannote.audio")
         
         return False
     
@@ -210,7 +347,7 @@ def transcribe_segment_local(audio_file, language="fr"):
         language: Code de langue (ex: fr, en)
     
     Returns:
-        Texte transcrit
+        Texte transcrit ou dictionnaire avec texte et informations sur les locuteurs
     """
     import whisper
     
@@ -231,6 +368,16 @@ def transcribe_segment_local(audio_file, language="fr"):
             text = text.decode('utf-8')
         except UnicodeDecodeError:
             text = text.decode('latin-1')
+    
+    # Si l'identification des locuteurs est activée, utiliser pyannote.audio
+    if CONFIG["speaker_diarization"]:
+        try:
+            print("🔍 Identification des locuteurs en cours...")
+            speakers_text = identify_speakers(audio_file, text, result.get("segments", []))
+            return speakers_text
+        except Exception as e:
+            print(f"⚠️ Erreur lors de l'identification des locuteurs: {e}")
+            print("⚠️ Retour à la transcription simple sans identification des locuteurs")
     
     return text
 
@@ -623,6 +770,12 @@ def main():
                         help="Service de transcription à utiliser")
     parser.add_argument("--no-ssl-fix", action="store_true", 
                         help="Désactiver la correction automatique des certificats SSL")
+    parser.add_argument("--diarize", action="store_true",
+                        help="Activer l'identification des locuteurs")
+    parser.add_argument("--min-speakers", type=int, default=1,
+                        help="Nombre minimum de locuteurs à identifier")
+    parser.add_argument("--max-speakers", type=int, default=2,
+                        help="Nombre maximum de locuteurs à identifier")
     
     try:
         args = parser.parse_args()
@@ -639,6 +792,15 @@ def main():
     
     if args.service:
         CONFIG["api_service"] = args.service
+    
+    if args.diarize:
+        CONFIG["speaker_diarization"] = True
+        
+    if args.min_speakers:
+        CONFIG["min_speakers"] = args.min_speakers
+        
+    if args.max_speakers:
+        CONFIG["max_speakers"] = args.max_speakers
     
     # Résoudre les problèmes de certificats SSL sur macOS (sauf si --no-ssl-fix est utilisé)
     if not args.no_ssl_fix:

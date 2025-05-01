@@ -233,11 +233,43 @@ Options disponibles:
 - `-m, --model`: Modèle Whisper à utiliser (tiny, base, small, medium, large)
 - `-s, --service`: Service de transcription à utiliser (local, assemblyai, openai)
 - `--no-ssl-fix`: Désactiver la correction automatique des certificats SSL
+- `--diarize`: Activer l'identification des locuteurs
+- `--min-speakers`: Nombre minimum de locuteurs à identifier (défaut: 1)
+- `--max-speakers`: Nombre maximum de locuteurs à identifier (défaut: 2)
 
-## Exemple
+## Exemples
 
 ```bash
+# Transcription simple
 python transcription.py podcast.mp3 -m medium -c 15
 ```
 
 Cette commande transcrit le fichier podcast.mp3 en utilisant le modèle medium de Whisper et des segments de 15 minutes.
+
+```bash
+# Transcription avec identification des locuteurs
+python transcription.py interview.mp3 --diarize --min-speakers 2 --max-speakers 4
+```
+
+Cette commande transcrit le fichier interview.mp3 et identifie entre 2 et 4 locuteurs différents.
+
+## Identification des locuteurs
+
+L'option `--diarize` permet d'identifier les différents locuteurs dans un enregistrement audio. Cette fonctionnalité nécessite:
+
+1. L'installation de la bibliothèque pyannote.audio:
+   ```bash
+   pip install pyannote.audio
+   ```
+
+2. Un compte sur [HuggingFace](https://huggingface.co/) et un token d'accès.
+   Définissez votre token comme variable d'environnement:
+   ```bash
+   export HF_TOKEN=votre_token_huggingface
+   ```
+
+3. Le modèle sera téléchargé et stocké localement dans le dossier `hg-models` lors de la première utilisation.
+   Les utilisations suivantes utiliseront directement le modèle local sans nécessiter de connexion internet
+   ou de token HuggingFace.
+
+Le résultat inclura des marqueurs de locuteurs comme `[LOCUTEUR_1]`, `[LOCUTEUR_2]`, etc.
