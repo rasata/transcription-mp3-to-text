@@ -92,20 +92,27 @@ def check_dependencies():
 
 def get_audio_duration(audio_file):
     """Obtient la durée d'un fichier audio en secondes en utilisant FFmpeg"""
-    cmd = ["ffmpeg", "-i", audio_file, "-f", "null", "-"]
-    result = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
-    
-    # Extraire la durée du résultat
-    import re
-    duration_match = re.search(r"Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})", result.stderr)
-    
-    if not duration_match:
-        raise ValueError("Impossible de déterminer la durée du fichier audio")
-    
-    hours, minutes, seconds, centiseconds = map(int, duration_match.groups())
-    total_seconds = hours * 3600 + minutes * 60 + seconds + centiseconds / 100
-    
-    return total_seconds
+    try:
+        # Essayer d'échapper le chemin du fichier pour gérer les espaces et caractères spéciaux
+        cmd = ["ffmpeg", "-i", audio_file, "-f", "null", "-"]
+        result = subprocess.run(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, encoding='utf-8', errors='replace')
+        
+        # Extraire la durée du résultat
+        import re
+        duration_match = re.search(r"Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})", result.stderr)
+        
+        if not duration_match:
+            raise ValueError("Impossible de déterminer la durée du fichier audio")
+        
+        hours, minutes, seconds, centiseconds = map(int, duration_match.groups())
+        total_seconds = hours * 3600 + minutes * 60 + seconds + centiseconds / 100
+        
+        return total_seconds
+    except Exception as e:
+        print(f"⚠️ Erreur lors de la détermination de la durée: {e}")
+        # En cas d'erreur, retourner une durée par défaut (1 heure)
+        print("⚠️ Utilisation d'une durée par défaut de 1 heure")
+        return 3600
 
 def format_time(seconds):
     """Formate un temps en secondes en format heures:minutes:secondes"""
@@ -155,7 +162,7 @@ def split_audio(audio_file, chunk_duration_min=10, temp_folder="temp_audio"):
         start_time_fmt = format_time(start_time)
         duration_fmt = format_time(duration)
         
-        # Préparer le nom du fichier de sortie
+        # Préparer le nom du fichier de sortie - utiliser un nom simple sans caractères spéciaux
         output_filename = os.path.join(
             temp_folder, 
             f"segment_{i:04d}_{start_time_fmt.replace(':', '-')}.wav"
@@ -369,6 +376,36 @@ def detect_file_encoding(file_path):
         # Par défaut, utiliser utf-8
         return 'utf-8'
 
+def sanitize_filename(filename):
+    """
+    Nettoie un nom de fichier pour éviter les problèmes d'encodage
+    
+    Args:
+        filename: Nom de fichier à nettoyer
+    
+    Returns:
+        Nom de fichier nettoyé
+    """
+    # Remplacer les caractères problématiques
+    import unicodedata
+    import re
+    
+    try:
+        # Normaliser les caractères Unicode (décomposer les accents)
+        filename = unicodedata.normalize('NFKD', filename)
+        # Supprimer les caractères non-ASCII
+        filename = re.sub(r'[^\x00-\x7F]+', '_', filename)
+        # Remplacer les caractères non alphanumériques par des underscores
+        filename = re.sub(r'[^\w\s.-]', '_', filename)
+        # Remplacer les espaces par des underscores
+        filename = re.sub(r'\s+', '_', filename)
+        return filename
+    except Exception as e:
+        print(f"⚠️ Erreur lors du nettoyage du nom de fichier: {e}")
+        # En cas d'erreur, générer un nom aléatoire
+        import uuid
+        return f"file_{uuid.uuid4().hex[:8]}"
+
 def process_file(audio_file, language="fr", output_file=None):
     """
     Processus principal pour traiter un fichier audio et le transcrire
@@ -389,9 +426,11 @@ def process_file(audio_file, language="fr", output_file=None):
     # Si aucun fichier de sortie n'est spécifié, en créer un
     if output_file is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # Nettoyer le nom de fichier pour éviter les problèmes d'encodage
+        base_name = sanitize_filename(os.path.basename(audio_file).split('.')[0])
         output_file = os.path.join(
             CONFIG["output_folder"],
-            f"transcription_{os.path.basename(audio_file).split('.')[0]}_{timestamp}.txt"
+            f"transcription_{base_name}_{timestamp}.txt"
         )
     
     # S'assurer que le fichier de sortie est dans un dossier existant
@@ -576,7 +615,11 @@ def main():
     parser.add_argument("--no-ssl-fix", action="store_true", 
                         help="Désactiver la correction automatique des certificats SSL")
     
-    args = parser.parse_args()
+    try:
+        args = parser.parse_args()
+    except Exception as e:
+        print(f"❌ Erreur lors de l'analyse des arguments: {e}")
+        return 1
     
     # Mettre à jour la configuration en fonction des arguments
     if args.chunk:
@@ -598,11 +641,22 @@ def main():
         return 1
     
     try:
+        # Vérifier que le fichier audio existe
+        if not os.path.exists(args.audio_file):
+            print(f"❌ Le fichier audio '{args.audio_file}' n'existe pas.")
+            return 1
+            
         # Traiter le fichier
         process_file(args.audio_file, args.language, args.output)
         return 0
+    except UnicodeEncodeError as e:
+        print(f"❌ Erreur d'encodage: {str(e)}")
+        print("⚠️ Conseil: Vérifiez que les noms de fichiers ne contiennent pas de caractères spéciaux.")
+        return 1
     except Exception as e:
         print(f"❌ Erreur: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return 1
 
 if __name__ == "__main__":
